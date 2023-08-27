@@ -1,4 +1,5 @@
-class Node:
+from pandas import DataFrame
+class _Node:
     def __init__(self, name) -> None:
         self.edges = []
         self.name = name
@@ -15,13 +16,13 @@ class UndirectedGraph:
         for nodeIndex in range (0, len(self.nodelist)):
             if self.nodelist[nodeIndex].name == node_name:
                 raise Exception('Node already exists. Try Again')
-        node = Node(node_name)
+        node = _Node(node_name)
         self.nodelist.append(node)
 
     def add_random_nodes(self, length):
         asc = 65
         for iters in range (0, length):
-            node = Node(chr(asc))
+            node = _Node(chr(asc))
             self.nodelist.append(node)
             asc+=1
 
@@ -53,6 +54,22 @@ class UndirectedGraph:
         else:
             self.connections[to].remove(fro)
             self.connections[fro].remove(to)
-
+        
     def display(self):
         return self.connections
+    
+    def construct_adjacency_matrix(self):
+        adj_mat = []
+        adj_mat_df = DataFrame(index=[nodes for nodes in self.connections], columns=[nodes for nodes in self.connections])
+        for rows in adj_mat_df.index:
+            for cols in self.connections[rows]:
+                adj_mat_df[rows][cols] = 1
+        adj_mat_df.fillna(0, inplace=True)
+        for rows in adj_mat_df.index:
+            row = []
+            for cols in adj_mat_df.columns:
+               row.append(adj_mat_df[cols][rows])
+            adj_mat.append(row)
+
+        return adj_mat
+          
