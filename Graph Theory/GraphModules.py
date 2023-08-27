@@ -1,4 +1,3 @@
-from pandas import DataFrame
 class _Node:
     def __init__(self, name) -> None:
         self.edges = []
@@ -55,12 +54,15 @@ class UndirectedGraph:
             self.connections[to].remove(fro)
             self.connections[fro].remove(to)
         
-    def display(self):
+    def display_connections(self):
         return self.connections
     
     def construct_adjacency_matrix(self):
+
+        from pandas import DataFrame as _DataFrame
+
         adj_mat = []
-        adj_mat_df = DataFrame(index=[nodes for nodes in self.connections], columns=[nodes for nodes in self.connections])
+        adj_mat_df = _DataFrame(index=[nodes for nodes in self.connections], columns=[nodes for nodes in self.connections])
         for rows in adj_mat_df.index:
             for cols in self.connections[rows]:
                 adj_mat_df[rows][cols] = 1
