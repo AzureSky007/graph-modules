@@ -1,7 +1,7 @@
 class _Node:
-    def __init__(self, name) -> None:
-        self.edges = []
+    def __init__(self, name, colour) -> None:
         self.name = name
+        self.colour = colour
     def __repr__(self) -> str:
         return f"{self.name}"
 
@@ -14,13 +14,13 @@ class UndirectedGraph:
         for nodeIndex in range (0, len(self.nodelist)):
             if self.nodelist[nodeIndex].name == node_name:
                 raise Exception('Node already exists. Try Again')
-        node = _Node(node_name)
+        node = _Node(node_name, None)
         self.nodelist.append(node)
 
     def add_random_nodes(self, length):
         asc = 65
         for iters in range (0, length):
-            node = _Node(chr(asc))
+            node = _Node(chr(asc), None)
             self.nodelist.append(node)
             asc+=1
 
@@ -95,13 +95,41 @@ class UndirectedGraph:
 
         return adj_mat  
 
-def havelHakimi(degSeq):
-    if len(degSeq) == 3:
-        return degSeq
+def havelHakimi(degree_seq):
+    if len(degree_seq) == 3:
+        return degree_seq
     else:
-        s = degSeq.pop(0)
+        s = degree_seq.pop(0)
         for indices in range (0, s):
-            degSeq[indices] = degSeq[indices]-1
+            degree_seq[indices] = degree_seq[indices]-1
         
-        return havelHakimi(degSeq)
-          
+        return havelHakimi(degree_seq)
+
+# Bipartite: Build a code/logic such that 2 things are achieved:-
+#   1. The connections are easily found (mostly using graph.connections)
+#   2. Simultaneous updation of the node.colour attribute is made possible (a node object needs to be there, not possible with node.name as node.name is a string)
+
+def dfs(graph_object, source_node):
+    if source_node == None:
+        import random
+        source = graph_object.nodelist[random.randint(0, len(graph_object.connections)-1)]
+    elif source_node in graph_object.connections:
+        for node in graph_object.nodelist:
+            if node.name == source_node:
+                source = node
+    else:
+        raise Exception('Node not in nodelist. Try again')
+    
+    print(str(graph_object.nodelist[0]))
+
+    frontier = []
+    frontier.append(source.name)
+    traversed = []
+    while len(frontier)!=0:
+        visitedNode = frontier.pop()
+        traversed.append(visitedNode)
+        for neighbour in graph_object.connections[visitedNode]:
+            if neighbour not in traversed and neighbour not in frontier:
+                frontier.append(neighbour)
+
+    return traversed
