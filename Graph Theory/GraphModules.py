@@ -25,16 +25,19 @@ class UndirectedGraph:
             asc+=1
 
     def test_adjacency(self, fro, to):
-        if fro not in self.connections and to not in self.connections:
+        if fro not in [nodes.name for nodes in self.nodelist] and to not in [nodes.name for nodes in self.nodelist]:
             raise Exception(f'{fro} and {to} are both not in the list of defined nodes')
-        elif fro not in self.connections:
+        elif fro not in [nodes.name for nodes in self.nodelist]:
             raise Exception(f'{fro} is not in the list of defined nodes')
-        elif to not in self.connections:
+        elif to not in [nodes.name for nodes in self.nodelist]:
             raise Exception(f'{to} is not in the list of defined nodes')
-        if to in self.connections[fro]:
-            return True
         else:
-            return False
+            if to not in self.connections or fro not in self.connections:
+                return False
+            if to in self.connections[fro]:
+                return True
+            else:
+                return False
         
     def add_edge(self, fro, to):
         count_to = 0
@@ -47,6 +50,9 @@ class UndirectedGraph:
 
         if count_to == 0 or count_fro == 0:
             raise Exception('Node not a part of defined graph. Try a different node or define it then try again.')
+        
+        elif self.test_adjacency(fro, to):
+            raise Exception('Nodes are already connected.')
         
         if fro not in self.connections:
             self.connections[fro] = [to]
@@ -105,7 +111,7 @@ def havelHakimi(degree_seq):
         
         return havelHakimi(degree_seq)
 
-def generate_graph(size, type):
+def generate_graph(size, type_of_graph):
 
     def generate_complete_graph(size):
         complete_graph = UndirectedGraph()
@@ -121,13 +127,47 @@ def generate_graph(size, type):
     
     def generate_cycle_graph(size):
         cycle_graph = UndirectedGraph()
+        cycle_graph.add_random_nodes(size)
+        for indices in range(0, len(cycle_graph.nodelist)-1):
+            cycle_graph.nodelist[indices]
+            cycle_graph.add_edge(cycle_graph.nodelist[indices].name, cycle_graph.nodelist[indices+1].name)
+        cycle_graph.add_edge(cycle_graph.nodelist[len(cycle_graph.nodelist)-1].name, cycle_graph.nodelist[0].name)
+
+        return cycle_graph
+    
+    def generate_bipartite_graph(size):
+        if type(size) != tuple:
+            raise Exception('Size for a bipartite graph has to be a tuple of form (NumberOfNodes_set1, NumberOfNodes_set2)')
+        else:
+            bipartite_graph = UndirectedGraph()
+            set1_length = size[0]
+            set2_length = size[1]
+            bipartite_graph.add_random_nodes(set1_length+set2_length)
+            set1 = [bipartite_graph.nodelist[index] for index in range(0, set1_length)]
+            set2 = [bipartite_graph.nodelist[index] for index in range(set1_length, set1_length+set2_length)]
+            from random import randint
+            counter = randint(3, set1_length*set2_length)
+
+            while counter > 0:
+                fro = set1[randint(0, set1_length-1)].name
+                to = set2[randint(0, set2_length-1)].name
+                while bipartite_graph.test_adjacency(fro, to):
+                    fro = set1[randint(0, set1_length-1)].name
+                    to = set2[randint(0, set2_length-1)].name
+                bipartite_graph.add_edge(fro, to)
+                counter-=1
+            return bipartite_graph
+                
+
 
     
     keywords = {
-        'complete': generate_complete_graph(size)
+        'complete': generate_complete_graph,
+        'cycle': generate_cycle_graph,
+        'bipartite': generate_bipartite_graph
     }
 
-    return keywords[type]
+    return keywords[type_of_graph](size)
 
 # Bipartite: Build a code/logic such that 2 things are achieved:-
 #   1. The connections are easily found (mostly using graph.connections)
