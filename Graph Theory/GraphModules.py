@@ -70,10 +70,10 @@ class UndirectedGraph:
         for nodeIndex in range (0, len(self.nodelist)):
             if self.nodelist[nodeIndex].name == node:
                 count_node+=1
-            if count_node == 1:
-                return len(self.connections[node])
-            else:
-                raise Exception('Node not present in graph, try again.')              
+        if count_node == 1:
+            return len(self.connections[node])
+        else:
+            raise Exception('Node not present in graph, try again.')              
         
     def display_connections(self):
         return self.connections
@@ -105,22 +105,44 @@ def havelHakimi(degree_seq):
         
         return havelHakimi(degree_seq)
 
+def generate_graph(size, type):
+
+    def generate_complete_graph(size):
+        complete_graph = UndirectedGraph()
+        complete_graph.add_random_nodes(size)
+        from copy import deepcopy
+        nodelist2 = [n.name for n in complete_graph.nodelist]
+        for node in complete_graph.nodelist:
+            nodelist3 = deepcopy(nodelist2)
+            nodelist3.remove(node.name)
+            complete_graph.connections[node.name] = [nodes for nodes in nodelist3]
+
+        return complete_graph
+    
+    def generate_cycle_graph(size):
+        cycle_graph = UndirectedGraph()
+
+    
+    keywords = {
+        'complete': generate_complete_graph(size)
+    }
+
+    return keywords[type]
+
 # Bipartite: Build a code/logic such that 2 things are achieved:-
 #   1. The connections are easily found (mostly using graph.connections)
 #   2. Simultaneous updation of the node.colour attribute is made possible (a node object needs to be there, not possible with node.name as node.name is a string)
 
-def dfs(graph_object, source_node):
+def dfs(graph_obj, source_node):
     if source_node == None:
         import random
-        source = graph_object.nodelist[random.randint(0, len(graph_object.connections)-1)]
-    elif source_node in graph_object.connections:
-        for node in graph_object.nodelist:
+        source = graph_obj.nodelist[random.randint(0, len(graph_obj.connections)-1)]
+    elif source_node in graph_obj.connections:
+        for node in graph_obj.nodelist:
             if node.name == source_node:
                 source = node
     else:
         raise Exception('Node not in nodelist. Try again')
-    
-    print(str(graph_object.nodelist[0]))
 
     frontier = []
     frontier.append(source.name)
@@ -128,7 +150,7 @@ def dfs(graph_object, source_node):
     while len(frontier)!=0:
         visitedNode = frontier.pop()
         traversed.append(visitedNode)
-        for neighbour in graph_object.connections[visitedNode]:
+        for neighbour in graph_obj.connections[visitedNode]:
             if neighbour not in traversed and neighbour not in frontier:
                 frontier.append(neighbour)
 
