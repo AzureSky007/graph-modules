@@ -118,11 +118,13 @@ def generate_graph(size, type_of_graph):
         complete_graph.add_random_nodes(size)
         from copy import deepcopy
         nodelist2 = [n.name for n in complete_graph.nodelist]
+        nodelist3 = []
         for node in complete_graph.nodelist:
             nodelist3 = deepcopy(nodelist2)
             nodelist3.remove(node.name)
             complete_graph.connections[node.name] = [nodes for nodes in nodelist3]
 
+        del nodelist2, nodelist3
         return complete_graph
     
     def generate_cycle_graph(size):
@@ -157,9 +159,6 @@ def generate_graph(size, type_of_graph):
                 bipartite_graph.add_edge(fro, to)
                 counter-=1
             return bipartite_graph
-                
-
-
     
     keywords = {
         'complete': generate_complete_graph,
@@ -194,4 +193,38 @@ def dfs(graph_obj, source_node):
             if neighbour not in traversed and neighbour not in frontier:
                 frontier.append(neighbour)
 
+    return traversed
+
+def bfs(graph_obj, source_node):
+    if source_node == None:
+        from random import randint
+        source = graph_obj.nodelist[randint(0, len(graph_obj.connections)-1)]
+    elif source_node in graph_obj.connections:
+        for node in graph_obj.nodelist:
+            if node.name == source_node:
+                source = node
+    else:
+        raise Exception('Node not in nodelist. Try again')
+
+    frontier = []
+    print(source)
+    frontier.append(source.name)
+    traversed = []
+    from copy import deepcopy
+    while len(frontier)!=0:
+        visited = frontier.pop(0)
+        print('visited: ', visited)
+        traversed.append(visited)
+
+        adj = deepcopy(graph_obj.connections[visited])
+        adj.reverse()
+
+        print('adj: ', adj)
+        print('frontier in while: ', frontier)
+
+        for neighbour in adj:
+            if neighbour not in traversed and neighbour not in frontier:
+                frontier.append(neighbour)
+                print('frontier in for: ', frontier)
+        
     return traversed
